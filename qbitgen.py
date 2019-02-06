@@ -4,6 +4,7 @@ class qbit():
     def __init__(self, generation, Qc, k):
        self.gen = generation
        self.Qc = Qc
+       self.k = k
        self.Qw = np.zeros((np.shape(Qc)[0], np.shape(Qc)[1], k))  #Qw or Qw
        for i in range(len(self.Qw)):               #assigning initial qubit value to Qw
             for j in range(len(self.Qw[i])):
@@ -24,13 +25,17 @@ class qbit():
                 if realconvalue[j][i] == 1:
                     self.convert(qbit[j][i], bin[j][i])
     def realWeightValues(self,RQc, RQw,binbit, Rw): #binbit =binarybit, Rw = real weight values
-         for i in range (len(RQc)):
+        width = (float(self.k)/2**self.k)
+        edge = -(width*(2**self.k-1)/2)
+        a = np.array([i for i in range(2**self.k)])
+        b = np.array([edge+(width*i) for i in range(2**self.k)])
+        z = dict(zip(a,b))
+        print z
+        for i in range (len(RQc)):
              for j in range(len(RQc[i])):
                 if RQc[i][j] == 1:             #not in auto generating Qw
-                    binbit[i][j]= {'[ 0.  0.]':np.array([-0.75,0.05]), '[ 0.  1.]':np.array([-0.25,0.05]),\
-                         '[ 1.  0.]':np.array([0.25,0.05]), \
-                             '[ 1.  1.]':np.array([0.75,0.05])}[str(RQw[i][j])]
-                    Rw[i][j] = np.random.normal(binbit[i][j][0],binbit[i][j][1])
+                    y = RQw[i][j]
+                    Rw[i][j]= z[int(''.join(map(lambda y: str(int(y)), y)),2)]
 
     def qubitUpdate(Qubit, b_best, b, deltaTheta, eps):
         theta = np.zeros((len(b)))
@@ -59,7 +64,7 @@ class qbit():
             self.convert(self.Qc[i], realConVal[i])
         self.weightSpaceDef(realConVal, self.Qw, weightSpace)
         #return str(realConVal) +'\n'+ str(weightSpace)
-        #self.realWeightValues(realConVal, weightSpace, subSpace, realWeiVal)
-        return str(realConVal)+ '\n'+str(weightSpace) #+'\n' + str(realWeiVal)       
+        self.realWeightValues(realConVal, weightSpace, subSpace, realWeiVal)
+        return str(realConVal)  +'\n' + str(realWeiVal)       
             
 

@@ -2,6 +2,13 @@ from qbitgen import qbit
 import numpy as np
 qbit  = qbit()
 generation = 1
+Qc = np.zeros((1,2,3))
+sqrt2 = 1/np.sqrt(2)
+Qc = np.array([[sqrt2, sqrt2,0],[sqrt2, sqrt2, sqrt2]])     #Qc init
+
+input = np.array([[0,0,0],[0,1,0],[1,0,0],[1,1,0]])
+output = np.array([0,1,1,0])
+
 class individual:
     def __init__(self, Qc, k):
         self.Qc = Qc
@@ -16,10 +23,8 @@ class individual:
         a = np.array([i for i in range(2**self.k)])
         b = np.array([edge+(width*i) for i in range(2**self.k)])
         self.z = dict(zip(a,b))
-Qc = np.zeros((1,2,3))
-sqrt2 = 1/np.sqrt(2)
-Qc = np.array([[sqrt2, sqrt2,0],[sqrt2, sqrt2, sqrt2]])     #Qc init
-# obj = individual(Qc)
+        self.error = 0
+
 subp3 = [0 for i in range(30)]
 subp2 = [0 for i in range(30)]
 subp1 = [0 for i in range(30)]
@@ -35,15 +40,10 @@ for i in range(generation):
         for k in range(len(populasi[j])):
             qbit.convert(populasi[j][k].Qc, populasi[j][k].RQc)     #Qc OBSERVATION
             qbit.weightSpaceDef(populasi[j][k].RQc, populasi[j][k].Qw, populasi[j][k].RQw, populasi[j][k].Rw,populasi[j][k].z)
-# print (populasi[0][0].RQw[0][0][0])
+            populasi[j][k].error = qbit.objFunction(populasi[j][k].Rw, input, output)
 
-# print populasi[0][0].RQw
-       
+         
 
-# for k in range(len(populasi[0])):
-#     qbit.convert(populasi[0][k].Qc, populasi[0][k].RQc)
-#     print populasi[0][k].RQc
-
-
+print populasi[0][1].Rw, populasi[0][1].error
 
 

@@ -71,17 +71,29 @@ class qbit():
             elif Qubit[i] > np.sqrt(1-eps):
                 Qubit[i] = np.sqrt(1-eps)
 
-    def oneTo3(self):
-        realConVal = np.zeros((np.shape(self.Qc)))
-        realWeiVal = np.copy(realConVal)
-        weightSpace = np.zeros((np.shape(self.Qw)))
-        subSpace = np.copy(weightSpace)
-        for i in range(len(self.Qc))    :
-            self.convert(self.Qc[i], realConVal[i])
-        # print realConVal
-        self.weightSpaceDef(realConVal, self.Qw, weightSpace)
-        #return str(realConVal) +'\n'+ str(weightSpace)
-        self.realWeightValues(realConVal, weightSpace, subSpace, realWeiVal)
-        print  str(realWeiVal)    
+    def objFunction(self, net, x, y):
+        er= 0
+        for i in range(len(x)):
+            h = np.dot(x[i],net[0])
+            x2 = np.copy(x[i]).astype(float)
+            x2[2]= h 
+            a = np.dot(x2, net[1])  #output program
+            
+            if a < 0 :
+                z = 0
+            else:
+                z = 1
+           
+            if z!= y[i]:
+                er +=1
+        return er 
+
+            
+                # print a,z , y[i]
+            
+        #     if z != y[i]:
+        #         error+=1
+        # return error
+            
             
 

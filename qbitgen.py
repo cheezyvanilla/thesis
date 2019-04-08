@@ -1,43 +1,59 @@
 
 import numpy as np
 class qbit():
-    def __init__(self, generation, Qc, k):
-       self.gen = generation
-       self.Qc = Qc
-       self.k = k
-       self.Qw = np.zeros((np.shape(Qc)[0], np.shape(Qc)[1], k))  #Qw or Qw
-       for i in range(len(self.Qw)):               #assigning initial qubit value to Qw
-            for j in range(len(self.Qw[i])):
-                for k in range(len(self.Qw[i][j])):
-                    self.Qw[i][j][k] = 1/np.sqrt(2)
+    def __init__(self):
+        return None
     def convert(self, qbit, bin ):                 #real connection value encoding
-        r = np.random.sample(len(qbit))
-        # print r
         for i in range(len(qbit)):
-            if r[i] < qbit[i]**2:
-                bin[i]= 1
-            else:
-                bin[i]= 0
+            r = np.random.sample(len(qbit[i]))
+            # print r
+            for j in range(len(qbit[i])):
+                if r[j] < qbit[i][j]**2:
+                    bin[i][j]= 1
+                else:
+                    bin[i][j]= 0
+            
+        # print r
         
-    def weightSpaceDef(self,realconvalue, qbit, bin):
-        for j in range(len(qbit)):
-            for i in range (len(qbit[j])):
-                if realconvalue[j][i] == 1:
-                    self.convert(qbit[j][i], bin[j][i])
+    # def weightSpaceDef(self,realconvalue, qbit, bin):
+    #     for k in range(len(realconvalue)):
+    #         for j in range(len(realconvalue[k])):
+    #             for i in range (len(realconvalue[k][j])):
+    #                 if realconvalue[k][j][i] == 1:
+    #                     self.convert(qbit[k][j], bin[k][j])
+    def weightSpaceDef(self,realconvalue, qbit, bin, Rw, z):
+        
+        for j in range(len(realconvalue)):
+            for i in range (len(realconvalue[j])):
+                if realconvalue[j][i] == 1: 
+                    r = np.random.sample(len(qbit[j][i]))
+                    for k in range(len(qbit[j][i])):
+                            if r[k] < qbit[j][i][k]**2:
+                                bin[j][i][k]= 1
+                            else:
+                                bin[j][i][k]= 0
+                    y = bin[j][i]
+                    Rw[j][i] = z[int(''.join(map(lambda y: str(int(y)), y)),2)]
+                    # print(int(''.join(map(lambda y: str(int(y)), y)),2) )
+                else:
+                    Rw[j][i]= 0
+        
+                
     def realWeightValues(self,RQc, RQw,binbit, Rw): #binbit =binarybit, Rw = real weight values
         width = (float(self.k)/2**self.k)
         edge = -(width*(2**self.k-1)/2)
         a = np.array([i for i in range(2**self.k)])
         b = np.array([edge+(width*i) for i in range(2**self.k)])
         z = dict(zip(a,b))
-        print z
+        #print z
+        #realWeiVal = np.copy(RQc)
         for i in range (len(RQc)):
              for j in range(len(RQc[i])):
-                if RQc[i][j] == 1:             #not in auto generating Qw
+                if RQc[i][j] == 1:             
                     y = RQw[i][j]
                     Rw[i][j]= z[int(''.join(map(lambda y: str(int(y)), y)),2)]
 
-    def qubitUpdate(Qubit, b_best, b, deltaTheta, eps):
+    def qubitUpdate(self, Qubit, b_best, b, deltaTheta, eps):
         theta = np.zeros((len(b)))
         for i in range(len(b)):
             if b==0 and b_best ==1:
@@ -62,9 +78,10 @@ class qbit():
         subSpace = np.copy(weightSpace)
         for i in range(len(self.Qc))    :
             self.convert(self.Qc[i], realConVal[i])
+        # print realConVal
         self.weightSpaceDef(realConVal, self.Qw, weightSpace)
         #return str(realConVal) +'\n'+ str(weightSpace)
         self.realWeightValues(realConVal, weightSpace, subSpace, realWeiVal)
-        return str(realConVal)  +'\n' + str(realWeiVal)       
+        print  str(realWeiVal)    
             
 

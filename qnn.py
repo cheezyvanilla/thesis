@@ -24,6 +24,9 @@ class individual:
         b = np.array([[edge+(width*i), width*0.1] for i in range(2**self.k)])
         self.z = dict(zip(a,b))
         self.error = 0
+        self.bestErr = 0
+
+bestInd = np.array([0,0,0])
 
 subp3 = [0 for i in range(30)]
 subp2 = [0 for i in range(30)]
@@ -38,11 +41,15 @@ for i in range(len(populasi)):              #INIT INDIVIDUAL OBJECTS
 for i in range(generation):
     for j in range(len(populasi)):
         for k in range(len(populasi[j])):
-            qbit.convert(populasi[j][k].Qc, populasi[j][k].RQc)     #Qc OBSERVATION
-            qbit.weightSpaceDef(populasi[j][k].RQc, populasi[j][k].Qw, populasi[j][k].RQw, populasi[j][k].Rw,populasi[j][k].z)
-            populasi[j][k].error = qbit.objFunction(populasi[j][k].Rw, input, output)
-
-         
+                qbit.convert(populasi[j][k].Qc, populasi[j][k].RQc)     #Qc OBSERVATION
+                qbit.weightSpaceDef(populasi[j][k].RQc, populasi[j][k].Qw, populasi[j][k].RQw, populasi[j][k].Rw,populasi[j][k].z)
+                populasi[j][k].error = qbit.objFunction(populasi[j][k].Rw, input, output)
+                if i == 0:
+                        populasi[j][k].bestErr = populasi[j][k].error
+                elif populasi[j][k].error > populasi[j][k].bestErr:
+                        #update Qw
+                
+        
 
 print populasi[0][1].Rw, populasi[0][1].error
 

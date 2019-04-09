@@ -33,7 +33,8 @@ class qbit():
                             else:
                                 bin[j][i][k]= 0
                     y = bin[j][i]
-                    Rw[j][i] = z[int(''.join(map(lambda y: str(int(y)), y)),2)]
+                    subs = z[int(''.join(map(lambda y: str(int(y)), y)),2)]
+                    Rw[j][i] = np.random.normal(subs[0], subs[1]) 
                     # print(int(''.join(map(lambda y: str(int(y)), y)),2) )
                 else:
                     Rw[j][i]= 0

@@ -21,7 +21,7 @@ class individual:
         width = (float(self.k)/2**self.k)
         edge = -(width*(2**self.k-1)/2)
         a = np.array([i for i in range(2**self.k)])
-        b = np.array([edge+(width*i) for i in range(2**self.k)])
+        b = np.array([[edge+(width*i), width*0.1] for i in range(2**self.k)])
         self.z = dict(zip(a,b))
         self.error = 0
 

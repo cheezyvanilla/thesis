@@ -55,16 +55,18 @@ class qbit():
                     Rw[i][j]= z[int(''.join(map(lambda y: str(int(y)), y)),2)]
 
     def qubitUpdate(self, Qubit, b_best, b, deltaTheta, eps):
-        theta = np.zeros((len(b)))
+        theta = deltaTheta
         for i in range(len(b)):
             if b==0 and b_best ==1:
-                theta[i] = -deltaTheta
+                theta = -deltaTheta
             elif b == 1 and b_best == 0:
-                theta[i] = deltaTheta
+                theta = deltaTheta
             else:
-                theta[i] = 0
+                theta = 0
             
-            Qubit[i] = (np.cos(theta[i])-np.sin(theta[i]))*Qubit[i]
+            Qubit[i] =np.dot(np.array([np.cos(theta), -np.sin(theta)]), \
+                        np.array([Qubit[i], np.sqrt(1- (Qubit[i])**2)]))
+
             if Qubit[i] < np.sqrt(eps):
                 Qubit[i] = np.sqrt(eps)
             elif np.sqrt(eps) <= Qubit[i] <= np.sqrt(1-eps):

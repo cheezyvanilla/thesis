@@ -54,25 +54,29 @@ class qbit():
                     y = RQw[i][j]
                     Rw[i][j]= z[int(''.join(map(lambda y: str(int(y)), y)),2)]
 
-    def qubitUpdate(self, Qubit, b_best, b, deltaTheta, eps):
+    def QwUpdate(self, realConValue, Qubit, b_best, b, deltaTheta, eps):
         theta = deltaTheta
-        for i in range(len(b)):
-            if b==0 and b_best ==1:
-                theta = -deltaTheta
-            elif b == 1 and b_best == 0:
-                theta = deltaTheta
-            else:
-                theta = 0
-            
-            Qubit[i] =np.dot(np.array([np.cos(theta), -np.sin(theta)]), \
-                        np.array([Qubit[i], np.sqrt(1- (Qubit[i])**2)]))
+        for i in range(len(realConValue)):
+            for j in range(len(realConValue[i])):
+              if realConValue[i][j] == 1 :  
+                for k in range(len(b[i][j])):
+                    if b[i][j][k]==0 and b[i][j][k] ==1:
+                        theta = -deltaTheta
+                    elif b[i][j][k] == 1 and b_best[i][j][k] == 0:
+                        theta = deltaTheta
+                    else:
+                        theta = 0
+                    
+                    Qubit[i][j][k] =np.dot(np.array([np.cos(theta), -np.sin(theta)]), \
+                                np.array([Qubit[i][j][k], np.sqrt(1- (Qubit[i][j][k])**2)]))
 
-            if Qubit[i] < np.sqrt(eps):
-                Qubit[i] = np.sqrt(eps)
-            elif np.sqrt(eps) <= Qubit[i] <= np.sqrt(1-eps):
-                Qubit[i] = Qubit[i]
-            elif Qubit[i] > np.sqrt(1-eps):
-                Qubit[i] = np.sqrt(1-eps)
+                    if Qubit[i][j][k] < np.sqrt(eps):
+                        Qubit[i][j][k] = np.sqrt(eps)
+                    elif np.sqrt(eps) <= Qubit[i][j][k] <= np.sqrt(1-eps):
+                        continue
+                        # Qubit[i][j][k] = Qubit[i][j][k]
+                    elif Qubit[i][j][k] > np.sqrt(1-eps):
+                        Qubit[i][j][k] = np.sqrt(1-eps)
 
     def objFunction(self, net, x, y):
         er= 0

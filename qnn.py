@@ -9,6 +9,10 @@ deltaTheta = 0.05*np.pi #parameter refinement
 eps = 0.005 #parameter refinement
 input = np.array([[0,0,0],[0,1,0],[1,0,0],[1,1,0]])
 output = np.array([0,1,1,0])
+class subpopulasi:
+        def __init__(self, Qc):
+                self.Qc = Qc
+                self.RQc = np.copy(self.Qc)
 
 class individual:
     def __init__(self, Qc, k):
@@ -32,12 +36,14 @@ class individual:
 subp3 = [0 for i in range(30)]
 subp2 = [0 for i in range(30)]
 subp1 = [0 for i in range(30)]
+subPop = [0,0,0]
 
 bestSubp = [0 for i in range(3)]
 populasi = [subp1, subp2, subp3]
 
 for i in range(len(populasi)):              #INIT INDIVIDUAL OBJECTS
     bestSubp[i] = individual(Qc, 5)
+    subPop[i] = subpopulasi(Qc) #init subpopulasi(Qc)
     for j in range(len(populasi[i])):
         populasi[i][j]= individual(Qc,5)
 
@@ -45,30 +51,34 @@ for i in range(len(populasi)):              #INIT INDIVIDUAL OBJECTS
 #MAIN LOOP        
 for i in range(generation):
     for j in range(len(populasi)):
-            
+        qbit.convert(subPop[j].Qc, subPop[j].RQc)
         for k in range(len(populasi[j])):
-                qbit.convert(populasi[j][k].Qc, populasi[j][k].RQc)     #Qc OBSERVATION
+                populasi[j][k].Qc = subPop[j].Qc
+                populasi[j][k].RQc = subPop[j].RQc     #Qc OBSERVATION
                 qbit.weightSpaceDef(populasi[j][k].RQc, populasi[j][k].Qw, populasi[j][k].RQw, populasi[j][k].Rw,populasi[j][k].z)
                 populasi[j][k].error = qbit.objFunction(populasi[j][k].Rw, input, output)
                 if k == 0:
                         bestSubp[j].error = populasi[j][k].error
-                        bestSubp[j].RQc = populasi[j][k].RQc
+                        # bestSubp[j].RQc = populasi[j][k].RQc
                         bestSubp[j].RQw = populasi[j][k].RQw
+                        bestSubp[j].Rw = populasi[j][k].Rw
                 elif populasi[j][k].error > bestSubp[j].error:
                         #update Qw
                         qbit.QwUpdate(populasi[j][k].RQc, populasi[j][k].Qw, bestSubp[j].RQw, populasi[j][k].RQw, deltaTheta, eps)
-                        print 'individu ke {} dari subpopulasi ke {}'.format(k,j)
-                        print populasi[j][k].RQc
-                        print bestSubp[j].RQc
-                        print populasi[j][k].Qw
-                        print populasi[j][k].RQw
-                        print bestSubp[j].RQw
+                        # print 'individu ke {} dari subpopulasi ke {}'.format(k,j)
+                        
+                        
+                        
                         
                 else:
-                 #       update bestInd, mean, SD, bestRw, bw(biner)
-                        continue
+                 #       update bestSubp, mean, SD, bestRw, bw(biner)
+                        qbit.bestSubUpdate(bestSubp[j], populasi[j][k])
+                        # update mean & sd
+
                 
-        
+# print bestSubp[0].Rw, bestSubp[0].error
+# print bestSubp[1].Rw, bestSubp[1].error
+# print bestSubp[2].Rw, bestSubp[2].error
 
 
 

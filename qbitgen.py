@@ -38,7 +38,28 @@ class qbit():
                     # print(int(''.join(map(lambda y: str(int(y)), y)),2) )
                 else:
                     Rw[j][i]= 0
-        
+    def QcUpdate(self, RQc, best_RQc, Qc, deltaTheta,eps):
+         theta = deltaTheta
+         
+         for i in range(RQc):
+             for j in range(RQc[i]):
+                if RQc[i][j]==0 and best_RQc[i][j]==1:
+                     theta = -deltaTheta
+                elif RQc[i][j]==1 and best_RQc[i][j]==0:
+                    theta = deltaTheta
+                else:
+                    theta = 0
+                Qc[i][j] =np.dot(np.array([np.cos(theta), -np.sin(theta)]), \
+                                np.array([Qubit[i][j], np.sqrt(1- (Qubit[i][j])**2)]))
+                if Qc[i][j] < np.sqrt(eps):
+                        Qc[i][j] = np.sqrt(eps)
+                elif np.sqrt(eps) <= Qc[i][j] <= np.sqrt(1-eps):
+                        continue
+                        
+                elif Qc[i][j] > np.sqrt(1-eps):
+                        Qc[i][j] = np.sqrt(1-eps)
+
+
                 
     
 
@@ -65,7 +86,7 @@ class qbit():
                         # Qubit[i][j][k] = Qubit[i][j][k]
                     elif Qubit[i][j][k] > np.sqrt(1-eps):
                         Qubit[i][j][k] = np.sqrt(1-eps)
-    def bestSubUpdate(self, bestSub, populasi):
+    def bestIndUpdate(self, bestSub, populasi):
         bestSub.error = populasi.error
         bestSub.RQw = populasi.RQw
         bestSub.Rw = populasi.Rw
@@ -78,13 +99,19 @@ class qbit():
                     populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][1] = populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][1]*0.8
                     bestSub.z[int(''.join(map(lambda y: str(int(y)), y)),2)][0] = populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][0]
                     bestSub.z[int(''.join(map(lambda y: str(int(y)), y)),2)][1] = populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][1]
-                    
+
+    def bestSubPopUpdate(self, bestSubPop, subPop):
+        bestSubPop.error = subPop.error
+        bestSubPop.RQc = subPop.RQc
+    def actFunc(self,x):
+        return (1/(1+np.exp(-x))).astype(float)
     def objFunction(self, net, x, y):
         er= 0
         for i in range(len(x)):
             h = np.dot(x[i],net[0])
+            funct = np.vectorize(self.actFunc)
             x2 = np.copy(x[i]).astype(float)
-            x2[2]= h 
+            x2[2]= funct(h)
             a = np.dot(x2, net[1])  #output program
             
             if a < 0 :

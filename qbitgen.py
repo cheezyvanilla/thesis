@@ -40,19 +40,7 @@ class qbit():
                     Rw[j][i]= 0
         
                 
-    def realWeightValues(self,RQc, RQw,binbit, Rw): #binbit =binarybit, Rw = real weight values
-        width = (float(self.k)/2**self.k)
-        edge = -(width*(2**self.k-1)/2)
-        a = np.array([i for i in range(2**self.k)])
-        b = np.array([edge+(width*i) for i in range(2**self.k)])
-        z = dict(zip(a,b))
-        #print z
-        #realWeiVal = np.copy(RQc)
-        for i in range (len(RQc)):
-             for j in range(len(RQc[i])):
-                if RQc[i][j] == 1:             
-                    y = RQw[i][j]
-                    Rw[i][j]= z[int(''.join(map(lambda y: str(int(y)), y)),2)]
+    
 
     def QwUpdate(self, realConValue, Qubit, b_best, b, deltaTheta, eps):
         theta = deltaTheta
@@ -60,7 +48,7 @@ class qbit():
             for j in range(len(realConValue[i])):
               if realConValue[i][j] == 1 :  
                 for k in range(len(b[i][j])):
-                    if b[i][j][k]==0 and b[i][j][k] ==1:
+                    if b[i][j][k]==0 and b_best[i][j][k] ==1:
                         theta = -deltaTheta
                     elif b[i][j][k] == 1 and b_best[i][j][k] == 0:
                         theta = deltaTheta
@@ -69,7 +57,7 @@ class qbit():
                     
                     Qubit[i][j][k] =np.dot(np.array([np.cos(theta), -np.sin(theta)]), \
                                 np.array([Qubit[i][j][k], np.sqrt(1- (Qubit[i][j][k])**2)]))
-
+                    # print 'qbit indeks[{}][{}][{}]'.format(i,j,k), Qubit[i][j][k], theta
                     if Qubit[i][j][k] < np.sqrt(eps):
                         Qubit[i][j][k] = np.sqrt(eps)
                     elif np.sqrt(eps) <= Qubit[i][j][k] <= np.sqrt(1-eps):
@@ -77,7 +65,20 @@ class qbit():
                         # Qubit[i][j][k] = Qubit[i][j][k]
                     elif Qubit[i][j][k] > np.sqrt(1-eps):
                         Qubit[i][j][k] = np.sqrt(1-eps)
+    def bestSubUpdate(self, bestSub, populasi):
+        bestSub.error = populasi.error
+        bestSub.RQw = populasi.RQw
+        bestSub.Rw = populasi.Rw
+        for j in range(len(populasi.RQc)):
+            for i in range (len(populasi.RQc[j])):
+                if populasi.RQc[j][i] == 1: 
+                    y = populasi.RQw[j][i]
 
+                    populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][0] = populasi.Rw[j][i]
+                    populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][1] = populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][1]*0.8
+                    bestSub.z[int(''.join(map(lambda y: str(int(y)), y)),2)][0] = populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][0]
+                    bestSub.z[int(''.join(map(lambda y: str(int(y)), y)),2)][1] = populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][1]
+                    
     def objFunction(self, net, x, y):
         er= 0
         for i in range(len(x)):

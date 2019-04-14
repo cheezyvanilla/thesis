@@ -41,8 +41,8 @@ class qbit():
     def QcUpdate(self, RQc, best_RQc, Qc, deltaTheta,eps):
          theta = deltaTheta
          
-         for i in range(RQc):
-             for j in range(RQc[i]):
+         for i in range(len(RQc)):
+             for j in range(len(RQc[i])):
                 if RQc[i][j]==0 and best_RQc[i][j]==1:
                      theta = -deltaTheta
                 elif RQc[i][j]==1 and best_RQc[i][j]==0:
@@ -50,7 +50,7 @@ class qbit():
                 else:
                     theta = 0
                 Qc[i][j] =np.dot(np.array([np.cos(theta), -np.sin(theta)]), \
-                                np.array([Qubit[i][j], np.sqrt(1- (Qubit[i][j])**2)]))
+                                np.array([Qc[i][j], np.sqrt(1- (Qc[i][j])**2)]))
                 if Qc[i][j] < np.sqrt(eps):
                         Qc[i][j] = np.sqrt(eps)
                 elif np.sqrt(eps) <= Qc[i][j] <= np.sqrt(1-eps):
@@ -109,9 +109,8 @@ class qbit():
         er= 0
         for i in range(len(x)):
             h = np.dot(x[i],net[0])
-            funct = np.vectorize(self.actFunc)
             x2 = np.copy(x[i]).astype(float)
-            x2[2]= funct(h)
+            x2[2]= self.actFunc(h)
             a = np.dot(x2, net[1])  #output program
             
             if a < 0 :

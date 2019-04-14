@@ -1,7 +1,7 @@
 from qbitgen import qbit
 import numpy as np
 qbit  = qbit()
-generation = 10
+generation = 100
 Qc = np.zeros((1,2,3))
 sqrt2 = 1/np.sqrt(2)
 Qc = np.array([[sqrt2, sqrt2,0],[sqrt2, sqrt2, sqrt2]])     #Qc init
@@ -15,6 +15,7 @@ class subpopulasi:
                 self.Rw = np.copy(self.Qc)
                 self.RQc = np.copy(self.Qc)
                 self.error = 0
+                self.refinement = 0
 
 class individual:
     def __init__(self, Qc, k):
@@ -31,6 +32,7 @@ class individual:
         b = np.array([[edge+(width*i), width*0.1] for i in range(2**self.k)])
         self.z = dict(zip(a,b))
         self.error = 0
+        self.refinement = 0
         
 
   #best between individuals
@@ -65,10 +67,10 @@ for i in range(generation):
                         # bestIndividual[j].RQc = populasi[j][k].RQc
                         bestIndividual[j].RQw = populasi[j][k].RQw
                         bestIndividual[j].Rw = populasi[j][k].Rw
-                elif populasi[j][k].error > bestIndividual[j].error:
+                elif populasi[j][k].error >= bestIndividual[j].error:
                         #update Qw
                         qbit.QwUpdate(populasi[j][k].RQc, populasi[j][k].Qw, bestIndividual[j].RQw, populasi[j][k].RQw, deltaTheta, eps)
-                        # print 'individu ke {} dari subpopulasi ke {}'.format(k,j)
+                        populasi[j][k].refinement+=1
                         
                         
                         
@@ -77,14 +79,14 @@ for i in range(generation):
                  #       update bestIndividual, mean, SD, bestRw, bw(biner)
                         qbit.bestIndUpdate(bestIndividual[j], populasi[j][k])
                         
-        if j == 0:
+        if i == 0:
                 bestSubPopulation.RQc = bestIndividual[j].RQc
                 bestSubPopulation.error = bestIndividual[j].error
                 bestSubPopulation.Rw = bestIndividual[j].Rw
-        elif bestIndividual[j].error > bestSubPopulation.error:
-                #update subpopulation[j]
-                continue
-                # qbit.QcUpdate(subPopulation[j].RQc, bestSubPopulation.RQc, subPopulation[j].Qc, deltaTheta, eps)
+        elif bestIndividual[j].error >= bestSubPopulation.error:
+                #update subpopulation[j]s
+                qbit.QcUpdate(subPopulation[j].RQc, bestSubPopulation.RQc, subPopulation[j].Qc, deltaTheta, eps)
+                subPopulation[j].refinement +=1
         else:
                 qbit.bestSubPopUpdate(subPopulation[j], bestSubPopulation) #update best subpopulation
 
@@ -92,6 +94,9 @@ for i in range(generation):
 print bestIndividual[0].Rw, bestIndividual[0].error
 print bestIndividual[1].Rw, bestIndividual[1].error
 print bestIndividual[2].Rw, bestIndividual[2].error
+print bestSubPopulation.Rw
+print subPopulation[0].refinement, subPopulation[1].refinement, subPopulation[2].refinement
+
 
 
 

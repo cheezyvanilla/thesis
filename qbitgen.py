@@ -104,14 +104,20 @@ class qbit():
         bestSubPop.error = subPop.error
         bestSubPop.RQc = subPop.RQc
         bestSubPop.Rw = subPop.Rw
-    def actFunc(self,x):
-        return (1/(1+np.exp(-x))).astype(float)
+    
     def objFunction(self, net, x, y):
         er= 0
         for i in range(len(x)):
             h = np.dot(x[i],net[0])
+            if h < 0 :
+                h = 0
+            else:
+                h = 1
+           
+            if z!= y[i]:
+                er +=1
             x2 = np.copy(x[i]).astype(float)
-            x2[2]= self.actFunc(h)
+            x2[2]= (h)
             a = np.dot(x2, net[1])  #output program
             
             if a < 0 :

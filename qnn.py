@@ -86,20 +86,18 @@ for i in range(generation):
                         else:
                         #       update bestIndividual, mean, SD, bestRw, bw(biner)
                                 qbit.bestIndUpdate(populasi[j][k])
+                
+                
+                for wew in range(len(FInd[j])):                         #store all individuals error
+                                FInd[j][wew] = populasi[j][wew].bestError                                
+                if i == 0:                        
+                        subPopulation[j].bestError = min(FInd[j])
+                        subPopulation[j].bestRQc = subPopulation.RQc
+
+
+
+                elif min(FInd[j]) > subPopulation[j].bestError:
                                 
-                if i == 0:
-                        
-                        for wew in range(len(FInd)):
-
-                                FInd[wew] = populasi[j][wew].bestError
-                        subPopulation[j].bestError = min(FInd)
-
-
-
-                elif bestIndividual[j].error >= bestSubPopulation.error:
-                                #update subpopulation[j]s
-                                # print bestIndividual[j].RQc, "best individu"
-                                # print bestSubPopulation.RQc, "best subp"
                                 qbit.QcUpdate(subPopulation[j].RQc, bestSubPopulation.RQc, subPopulation[j].Qc, deltaTheta, eps)
                                 
                 else:

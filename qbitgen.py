@@ -34,32 +34,34 @@ class qbit():
                                 bin[j][i][k]= 0
                     y = bin[j][i]
                     subs = z[int(''.join(map(lambda y: str(int(y)), y)),2)]
-                    Rw[j][i] = np.random.normal(subs[0], subs[1]) 
+                    Rw[j][i] = float(np.random.normal(subs[0], subs[1]) )
                     # print(int(''.join(map(lambda y: str(int(y)), y)),2) )
+                    # print np.random.normal(subs[0], subs[1])
+                    # print Rw[j][i], "Rw" 
                 else:
                     Rw[j][i]= 0
-    def QcUpdate(self, RQc, best_RQc, Qc, deltaTheta,eps):
-        theta = deltaTheta
+    def QcUpdate(self, subpopulasi, deltaTheta,eps):
+        theta = np.copy(deltaTheta)
          
-        for i in range(len(RQc)):
-             for j in range(len(RQc[i])):
-                if RQc[i][j]==0 and best_RQc[i][j]==1:
+        for i in range(len(subpopulasi.RQc)):
+             for j in range(len(subpopulasi.RQc[i])):
+                if subpopulasi.RQc[i][j]==0 and subpopulasi.bestRQc[i][j]==1:
                      theta = -deltaTheta
                      
-                elif RQc[i][j]==1 and best_RQc[i][j]==0:
+                elif subpopulasi.RQc[i][j]==1 and subpopulasi.bestRQc[i][j]==0:
                     theta = deltaTheta
                 else:
                     theta = 0
-                Qc[i][j] =np.dot(np.array([np.cos(theta), -np.sin(theta)]), \
-                                np.array([Qc[i][j], np.sqrt(1- (Qc[i][j])**2)]))
+                subpopulasi.Qc[i][j] =np.dot(np.array([np.cos(theta), -np.sin(theta)]), \
+                                np.array([subpopulasi.Qc[i][j], np.sqrt(1- (subpopulasi.Qc[i][j])**2)]))
                 # print Qc[i][j], theta
-                if Qc[i][j] < np.sqrt(eps):
-                        Qc[i][j] = np.sqrt(eps)
-                elif np.sqrt(eps) <= Qc[i][j] <= np.sqrt(1-eps):
-                        Qc[i][j] = Qc[i][j]
+                if subpopulasi.Qc[i][j] < np.sqrt(eps):
+                        subpopulasi.Qc[i][j] = np.sqrt(eps)
+                elif np.sqrt(eps) <= subpopulasi.Qc[i][j] <= np.sqrt(1-eps):
+                        subpopulasi.Qc[i][j] = subpopulasi.Qc[i][j]
                         
-                elif Qc[i][j] > np.sqrt(1-eps):
-                        Qc[i][j] = np.sqrt(1-eps)
+                elif subpopulasi.Qc[i][j] > np.sqrt(1-eps):
+                        subpopulasi.Qc[i][j] = np.sqrt(1-eps)
         # print Qc
 
                 
@@ -73,10 +75,13 @@ class qbit():
                 for k in range(len(b[i][j])):
                     if b[i][j][k]==0 and b_best[i][j][k] ==1:
                         theta = -deltaTheta
+                        # print 'brubah'
                     elif b[i][j][k] == 1 and b_best[i][j][k] == 0:
                         theta = deltaTheta
+                        # print 'berubah'
                     else:
                         theta = 0
+                        # print 'tidak berubah'
                     
                     Qubit[i][j][k] =np.dot(np.array([np.cos(theta), -np.sin(theta)]), \
                                 np.array([Qubit[i][j][k], np.sqrt(1- (Qubit[i][j][k])**2)]))
@@ -88,9 +93,9 @@ class qbit():
                     elif Qubit[i][j][k] > np.sqrt(1-eps):
                         Qubit[i][j][k] = np.sqrt(1-eps)
     def bestIndUpdate(self, populasi):
-        populasi.bestError = populasi.error
-        populasi.bestRQw = populasi.RQw
-        populasi.bestRw = populasi.Rw
+        populasi.bestError = np.copy(populasi.error)
+        populasi.bestRQw = np.copy(populasi.RQw)
+        populasi.bestRw = np.copy(populasi.Rw)
         # bestSub.RQc = populasi.RQc
         for j in range(len(populasi.RQc)):
             for i in range (len(populasi.RQc[j])):
@@ -99,35 +104,15 @@ class qbit():
 
                     populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][0] = populasi.Rw[j][i]
                     populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][1] = populasi.z[int(''.join(map(lambda y: str(int(y)), y)),2)][1]*0.8
-                    
-    def bestSubPopUpdate(self, bestSubPop, subPop):
-        bestSubPop.error = subPop.error
-        bestSubPop.RQc = subPop.RQc
-        bestSubPop.Rw = subPop.Rw
+                    # print populasi.Rw[j][i]
+    def subPopUpdate(self, subPop, minF):
+        subPop.bestError = np.copy(minF)
+        subPop.bestRQc = np.copy(subPop.RQc)
+        # bestSubPop.Rw = subPop.Rw
     
-    def objFunction(self, net, x, y):
-        er= 0
-        for i in range(len(x)):
-            h = np.dot(x[i],net[0])
-            if h < 0 :
-                h = 0
-            else:
-                h = 1
-           
-            if z!= y[i]:
-                er +=1
-            x2 = np.copy(x[i]).astype(float)
-            x2[2]= (h)
-            a = np.dot(x2, net[1])  #output program
-            
-            if a < 0 :
-                z = 0
-            else:
-                z = 1
-           
-            if z!= y[i]:
-                er +=1
-        return er 
+   
+
+
 
     def weightExchange(self, objek):
         for ha in range(len(objek)):
@@ -146,3 +131,70 @@ class qbit():
         
         for k in range(len(objek)):
             objek[k].Qc = a[k]
+
+
+    def objFunction(self, net,x,out):    #or gate
+        h = 0
+        p = 0
+        y = 0
+        er = 0
+        for i in range(len(x)):
+            h = np.dot(net[0],x[i])
+
+            # p = np.append(x[i], 1/(1+np.exp(-h))).astype(float)
+            # p = np.append(x[i], 0 if h<0 else 1).astype(float)
+            x[i][3] = 0 if h<0 else 1
+            
+            y = np.dot(net[1], x[i])
+            y = 0 if y< 0 else 1
+            if out[i] == y:
+                er +=0
+            else : 
+                er +=1
+        return er
+    # def objFunction(self, net, x, y):
+    #     er= 0
+    #     z = 0
+    #     for i in range(len(x)):
+    #         h = np.dot(x[i],net[0])
+    #         if h < 0 :
+    #             h = 0
+    #         else:
+    #             h = 1
+           
+    #         if z!= y[i]:
+    #             er +=1
+    #         x2 = np.copy(x[i]).astype(float)
+    #         x2[2]= (h)
+    #         a = np.dot(x2, net[1])  #output program
+            
+    #         if a < 0 :
+    #             z = 0
+    #         else:
+    #             z = 1
+           
+    #         if z!= y[i]:
+    #             er +=1
+    #     return er 
+    # def objFunction(self, net, x, y):    #or gate
+    #     er= 0
+    #     for i in range(len(x)):
+    #         h = np.dot(x[i],net[0])
+    #         if h<0:
+    #             h = 0
+    #         else:
+    #             h = 1
+    #         if h != y[i]:
+    #             er+=1
+    #     return er
+    def netGen(self, input, hidden, output):
+        net = np.zeros((input+hidden+output,input+hidden+output))
+        for i in range(input+hidden+output): 
+            for j in  range(input+hidden+output):
+                for hid in range(hidden):
+                    if i>(input-1)+hid and j <input+hid:
+                        net[i][j] = 1/np.sqrt(2)
+
+                if i>(input+hidden-1) and j<(input+hidden):
+                    net[i][j] = 1/np.sqrt(2)
+        return net

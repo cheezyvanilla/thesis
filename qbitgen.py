@@ -133,60 +133,26 @@ class qbit():
             objek[k].Qc = a[k]
 
 
-    def objFunction(self, net,x,out):    #or gate
-        h = 0
-        p = 0
-        y = 0
-        er = 0
-        for i in range(len(x)):
-            h = np.dot(net[0],x[i])
 
-            # p = np.append(x[i], 1/(1+np.exp(-h))).astype(float)
-            # p = np.append(x[i], 0 if h<0 else 1).astype(float)
-            x[i][3] = 0 if h<0 else 1
+
+    def objFunction(self, net,netTopo,x, y): 
+        z = 0
+        n= 0
+        er = 0
+        for i in (x):
             
-            y = np.dot(net[1], x[i])
-            y = 0 if y< 0 else 1
-            if out[i] == y:
-                er +=0
-            else : 
-                er +=1
+            i = np.append(i,np.zeros(np.shape(net)[1]-np.shape(x)[1]))    #menyamakan dimensi input dan beban
+            # hidden Fz
+            for j in range(netTopo[1]):
+                i[netTopo[0]+j] =  1/(1+np.exp(-np.dot(net[netTopo[0]+ j], i)))
+
+            for k in range(netTopo[2]):
+                z = 1/(1+np.exp(-np.dot(net[netTopo[0]+netTopo[1]+k], i)))
+                if abs(z-y[n])>0.01:
+                    er+=1
+                n +=1
+        
         return er
-    # def objFunction(self, net, x, y):
-    #     er= 0
-    #     z = 0
-    #     for i in range(len(x)):
-    #         h = np.dot(x[i],net[0])
-    #         if h < 0 :
-    #             h = 0
-    #         else:
-    #             h = 1
-           
-    #         if z!= y[i]:
-    #             er +=1
-    #         x2 = np.copy(x[i]).astype(float)
-    #         x2[2]= (h)
-    #         a = np.dot(x2, net[1])  #output program
-            
-    #         if a < 0 :
-    #             z = 0
-    #         else:
-    #             z = 1
-           
-    #         if z!= y[i]:
-    #             er +=1
-    #     return er 
-    # def objFunction(self, net, x, y):    #or gate
-    #     er= 0
-    #     for i in range(len(x)):
-    #         h = np.dot(x[i],net[0])
-    #         if h<0:
-    #             h = 0
-    #         else:
-    #             h = 1
-    #         if h != y[i]:
-    #             er+=1
-    #     return er
     def netGen(self, input, hidden, output):
         net = np.zeros((input+hidden+output,input+hidden+output))
         for i in range(input+hidden+output): 

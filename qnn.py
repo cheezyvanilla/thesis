@@ -2,8 +2,8 @@ from qbitgen import qbit
 import numpy as np
 qbit  = qbit()
 generation = 2000
-layer = [4,6,1]
-Qc = qbit.netGen(4,6,1)     #Qc init
+layer = [4,5,1]
+Qc = qbit.netGen(4,5,1)     #Qc init
 # Qc = np.array([[1,1,1, 0],[1,1,1,1]])
 # Qc = np.array([[1, 1,0],[1, 1, 1]]) 
 sqrt2 = 1/np.sqrt(2)
@@ -63,78 +63,97 @@ for i in range(len(populasi)):              #INIT INDIVIDUAL OBJECTS
     for j in range(len(populasi[i])):
         populasi[i][j]= individual(Qc,5)
 
-
-#MAIN LOOP        
+# for llalalala in range(10):
+#         FInd = [0 for i in range(3)]
+#         FInd[0] = [0 for i in range(30)] #menampung best F untuk subpopulasi
+#         FInd[1] = [0 for i in range(30)]
+#         FInd[2] = [0 for i in range(30)]
+#         for y in range(len(populasi)):              #INIT INDIVIDUAL OBJECTS
+#                 bestIndividual[y] = individual(Qc, 5) #init best individual object in subpopulation
+#                 subPopulation[y] = subpopulasi(Qc) #init subpopulasi(Qc)
+#                 # print subPopulation[y].bestError
+#                 for g in range(len(populasi[y])):
+#                         populasi[y][g]= individual(Qc,5)
+#MAIN LOOP 
+f1 = open("G1.txt", "a+")  
+f2 = open("G2.txt", "a+")
+f3 = open("G3.txt", "a+")     
 for i in range(generation):
-        
-        for j in range(len(populasi)):
-                
-                qbit.convert(subPopulation[j].Qc, subPopulation[j].RQc)  #Qc OBSERVATION
-                
-                # print subPopulation[j].RQc == subPopulation[j].bestRQc
-                for k in range(len(populasi[j])):
-                        populasi[j][k].Qc = np.copy(subPopulation[j].Qc)
-                        populasi[j][k].RQc = np.copy(subPopulation[j].RQc)     
-                        qbit.weightSpaceDef(populasi[j][k].RQc, populasi[j][k].Qw, populasi[j][k].RQw, populasi[j][k].Rw,populasi[j][k].z)
-                        populasi[j][k].error = qbit.objFunction(populasi[j][k].Rw,layer , input, output)
-                        if populasi[j][k].bestRQw == None:
-                            populasi[j][k].bestRQw = np.copy(populasi[j][k].RQw) #THE PROBLEM IS HERE
-                            # print populasi[j][k].bestRQw,j,k
-                    
-                        if i == 0:
-                                populasi[j][k].bestError = np.copy(populasi[j][k].error)
 
-                        elif populasi[j][k].error > populasi[j][k].bestError:
-                                #update Qw
-                                qbit.QwUpdate(populasi[j][k].RQc, populasi[j][k].Qw, populasi[j][k].bestRQw, populasi[j][k].RQw, deltaTheta, eps)
-                                # print 'Qw Update'
-                        elif   populasi[j][k].error == 0:
-                            print 'individu terbaik di populasi {} individu {} found in generation {}'.format(j,k,i)
-                        #     print populasi[j][k].Rw 
-                              
-                        #     break        
-                                
+                for j in range(len(populasi)):
+
+                        qbit.convert(subPopulation[j].Qc, subPopulation[j].RQc)  #Qc OBSERVATION
+
+                        # print subPopulation[j].RQc == subPopulation[j].bestRQc
+                        for k in range(len(populasi[j])):
+                                populasi[j][k].Qc = np.copy(subPopulation[j].Qc)
+                                populasi[j][k].RQc = np.copy(subPopulation[j].RQc)     
+                                qbit.weightSpaceDef(populasi[j][k].RQc, populasi[j][k].Qw, populasi[j][k].RQw, populasi[j][k].Rw,populasi[j][k].z)
+                                populasi[j][k].error = qbit.objFunction(populasi[j][k].Rw,layer , input, output)
+                                if populasi[j][k].bestRQw == None:
+                                        populasi[j][k].bestRQw = np.copy(populasi[j][k].RQw) #THE PROBLEM IS HERE
+                                # print populasi[j][k].bestRQw,j,k
+
+                                if i == 0:
+                                        populasi[j][k].bestError = np.copy(populasi[j][k].error)
+                                elif populasi[j][k].error > populasi[j][k].bestError:
+                                        #update Qw
+                                        qbit.QwUpdate(populasi[j][k].RQc, populasi[j][k].Qw, populasi[j][k].bestRQw, populasi[j][k].RQw, deltaTheta, eps)
+                                        # print 'Qw Update'
+                                elif   populasi[j][k].error < 3:
+                                        print 'individu terbaik di populasi {} individu {} found in generation {}'.format(j,k,i)
+                                        print populasi[j][k].Rw
+                                #     print populasi[j][k].Rw 
+
+                                #     break        
+
+                                else:
+                                #       update bestIndividual, mean, SD, bestRw, bw(biner)
+                                        qbit.bestIndUpdate(populasi[j][k])
+                        # print 'best in subpop {},min F = {}'.format(subPopulation[j].bestError, min(FInd[j]))
+                        # print subPopulation[j].bestError== min(FInd[j])
+                        for wew in range(len(FInd[j])):                         #store all individuals error
+                                        FInd[j][wew] = np.copy(populasi[j][wew].error)    
+                        # print FInd[j]                            
+                        # print FInd[j], min(FInd[j])
+                        # print min(FInd[j]),subPopulation[j].bestError,'best indiv, pop ke', j
+                        if i == 0:                        
+                                subPopulation[j].bestError = np.copy(min(FInd[j]))
+                                subPopulation[j].bestRQc = np.copy(subPopulation[j].RQc)
+                                # print 'store value to best variable'
+                                # print subPopulation[j].bestError
+                        elif min(FInd[j]) > subPopulation[j].bestError:
+
+                                        qbit.QcUpdate(subPopulation[j], deltaTheta, eps)
+                                        # print 'Qc Updating'
+
                         else:
-                        #       update bestIndividual, mean, SD, bestRw, bw(biner)
-                                qbit.bestIndUpdate(populasi[j][k])
+                                        # print 'update populasi pada subpop ke ', j
+                                        # print subPopulation[j].bestRQc,'awal'
 
-                # print 'best in subpop {},min F = {}'.format(subPopulation[j].bestError, min(FInd[j]))
-                # print subPopulation[j].bestError== min(FInd[j])
-                for wew in range(len(FInd[j])):                         #store all individuals error
-                                FInd[j][wew] = np.copy(populasi[j][wew].bestError)    
-                # print FInd[j]                            
-                # print FInd[j], min(FInd[j])
-                # print min(FInd[j]),subPopulation[j].bestError,'best indiv, pop ke', j
-                if i == 0:                        
-                        subPopulation[j].bestError = np.copy(min(FInd[j]))
-                        subPopulation[j].bestRQc = np.copy(subPopulation[j].RQc)
-
-                        # print 'store value to best variable'
-                        # print subPopulation[j].bestError
-                elif min(FInd[j]) > subPopulation[j].bestError:
-                                
-                                qbit.QcUpdate(subPopulation[j], deltaTheta, eps)
-                                print 'Qc Updating'
-                                
-                else:
-                                # print 'update populasi pada subpop ke ', j
-                                # print subPopulation[j].bestRQc,'awal'
-                                
-                                qbit.subPopUpdate(subPopulation[j], min(FInd[j])) #update best subpopulation
-                                # print 'subpop updated'
-                # print subPopulation[j].bestError               
-                print subPopulation[j].bestError               
-        if (i+1)%5==0:
-                qbit.weightExchange(populasi)
-                # print "exchange done"
-        if (i+1)%10 ==0:
-                qbit.connExchange(subPopulation)
-print 'sub 1'
-print FInd[0]
-print 'sub 2'
-print FInd[1]
-print 'sub3'
-print FInd[2]
-print subPopulation[0].bestError
-print subPopulation[1].bestError
-print subPopulation[2].bestError
+                                        qbit.subPopUpdate(subPopulation[j], min(FInd[j])) #update best subpopulation
+                                        # print 'subpop updated'
+                        # print subPopulation[j].bestError               
+                        # print subPopulation[j].bestError               
+                if (i+1)%5==0:
+                        qbit.weightExchange(populasi)
+                        # print "exchange done"
+                if (i+1)%10 ==0:
+                        qbit.connExchange(subPopulation)
+                        
+                        f1.write("%d \n" %subPopulation[0].bestError)
+                        f2 = open("G2.txt", "a+")
+                        f2.write("%d \n" %subPopulation[1].bestError)
+                        f3 = open("G3.txt", "a+")
+                        f3.write("%d \n" %subPopulation[2].bestError)
+                        print (subPopulation[0].bestError,subPopulation[1].bestError,subPopulation[2].bestError)
+        # print 'sub 1'
+        # print FInd[0]
+        # print 'sub 2'
+        # print FInd[1]
+        # print 'sub3'
+        # print FInd[2]
+                
+        # print subPopulation[0].bestError, 'populasi1'
+        # print subPopulation[1].bestError, 'populasi2'
+        # print subPopulation[2].bestError, 'populasi3'
